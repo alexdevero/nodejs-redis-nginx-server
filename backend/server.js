@@ -9,31 +9,32 @@ const port = 3000
 const redisClient = redis.createClient({
   host: 'redis',
   port: 6379,
-  url: 'redis://redis:6379',
+  url: process.env.REDIS_URL,
 })
 
 redisClient.on('error', (err) => console.log('Redis Client Error', err))
 
+redisClient.connect()
+
 app.get('/', async (req, res) => {
-  console.log('Request received')
-  try {
-    // await redisClient.connect()
-    // redisClient.get('numOfVisits', function (err, numOfVisits) {
-    //   let numVisitsToDisplay = parseInt(numOfVisits) + 1
+  // redisClient
+  //   .ping()
+  //   .then((res) => console.log('ping', res))
+  //   .catch((err) => console.log('ping err', err))
 
-    //   if (isNaN(numVisitsToDisplay)) {
-    //     numVisitsToDisplay = 1
-    //   }
+  redisClient
+    .get('numOfVisits')
+    .then((numOfVisits) => {
+      let numVisitsToDisplay = parseInt(numOfVisits) + 1
 
-    //   res.send(`${os.hostname()}: Number of visits: ${numVisitsToDisplay}`)
-    //   redisClient.set('numOfVisits', numOfVisits + 1)
-    // })
-    res.send(`${os.hostname()}: without redis`)
-  } catch (err) {
-    console.log('Redis Client Error', err)
+      if (isNaN(numVisitsToDisplay)) {
+        numVisitsToDisplay = 1
+      }
 
-    res.send('There was an error connecting to Redis')
-  }
+      res.send(`${os.hostname()}: Number of visits: ${numVisitsToDisplay}`)
+      redisClient.set('numOfVisits', numVisitsToDisplay)
+    })
+    .catch((err) => console.log('get err', err))
 })
 
 app.listen(port, () => {

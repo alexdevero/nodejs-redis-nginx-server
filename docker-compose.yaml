@@ -4,7 +4,6 @@ services:
     image: 'redislabs/redismod'
     ports:
       - 6379:6379
-    # command: redis-server --appendonly yes --loglevel warning
   backend1:
     restart: on-failure
     build: ./backend
@@ -13,6 +12,8 @@ services:
     hostname: backend1
     depends_on:
       - redis
+    environment:
+      REDIS_URL: redis://redis:6379
   backend2:
     restart: on-failure
     build: ./backend
@@ -21,6 +22,8 @@ services:
     hostname: backend2
     depends_on:
       - redis
+    environment:
+      REDIS_URL: redis://redis:6379
   nginx:
     build: ./nginx
     ports:
