@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  redis:
+    image: 'redislabs/redismod'
+    ports:
+      - 6379:6379
+    # command: redis-server --appendonly yes --loglevel warning
+  backend1:
+    restart: on-failure
+    build: ./backend
+    ports:
+      - 81:3000
+    hostname: backend1
+    depends_on:
+      - redis
+  backend2:
+    restart: on-failure
+    build: ./backend
+    ports:
+      - 82:3000
+    hostname: backend2
+    depends_on:
+      - redis
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - backend1
+      - backend2
